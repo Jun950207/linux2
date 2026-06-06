@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux 期末考複習講義｜第五～八章</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --border: #e2e0db;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --ch5: #c0392b;
+  --ch6: #2980b9;
+  --ch7: #27ae60;
+  --ch8: #8e44ad;
+  --code-bg: #1e1e2e;
+  --yellow: #f39c12;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* Print */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; font-size: 12px; }
+  .chapter { page-break-before: always; }
+  .chapter:first-of-type { page-break-before: avoid; }
+  pre { font-size: 11px; }
+}
+
+/* Cover */
+.cover {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: white;
+  padding: 60px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+.cover-title {
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  position: relative;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cover-sub {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.6);
+  position: relative;
+}
+.cover-chips {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  position: relative;
+}
+.chip {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid;
+}
+.chip-5 { background: rgba(192,57,43,0.2); border-color: #c0392b; color: #ff6b6b; }
+.chip-6 { background: rgba(41,128,185,0.2); border-color: #2980b9; color: #74b9ff; }
+.chip-7 { background: rgba(39,174,96,0.2); border-color: #27ae60; color: #55efc4; }
+.chip-8 { background: rgba(142,68,173,0.2); border-color: #8e44ad; color: #d7aefb; }
+
+/* TOC */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin: 30px auto;
+  max-width: 860px;
+}
+.toc h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+.toc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 24px;
+}
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed transparent;
+  transition: all 0.15s;
+}
+.toc a:hover { border-bottom-color: var(--border); color: #2980b9; }
+.toc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Layout */
+.main { max-width: 860px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* Chapter header */
+.chapter { margin-bottom: 50px; }
+.chapter-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border-left: 5px solid;
+}
+.ch5-header { background: rgba(192,57,43,0.06); border-color: var(--ch5); }
+.ch6-header { background: rgba(41,128,185,0.06); border-color: var(--ch6); }
+.ch7-header { background: rgba(39,174,96,0.06); border-color: var(--ch7); }
+.ch8-header { background: rgba(142,68,173,0.06); border-color: var(--ch8); }
+
+.chapter-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: white;
+  white-space: nowrap;
+}
+.ch5-num { background: var(--ch5); }
+.ch6-num { background: var(--ch6); }
+.ch7-num { background: var(--ch7); }
+.ch8-num { background: var(--ch8); }
+
+.chapter-title { font-size: 1.3rem; font-weight: 900; }
+
+/* Section */
+.section { margin-bottom: 28px; }
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+}
+.ch5 .section-title::before { background: var(--ch5); }
+.ch6 .section-title::before { background: var(--ch6); }
+.ch7 .section-title::before { background: var(--ch7); }
+.ch8 .section-title::before { background: var(--ch8); }
+
+/* Content blocks */
+.concept-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+.concept-box p { margin-bottom: 6px; }
+.concept-box p:last-child { margin-bottom: 0; }
+
+/* Code block */
+pre {
+  background: var(--code-bg);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 10px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: #cdd6f4;
+}
+.comment { color: #6c7086; }
+.cmd { color: #89b4fa; }
+.flag { color: #94e2d5; }
+.str { color: #a6e3a1; }
+.num { color: #fab387; }
+.var { color: #f5c2e7; }
+
+/* Inline code */
+code {
+  background: #f0ede8;
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  color: #c0392b;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.88rem;
+}
+th {
+  background: #f0ede8;
+  font-weight: 700;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:nth-child(even) td { background: #faf9f7; }
+td code { background: #f0ede8; }
+
+/* Key point */
+.key {
+  background: #fffbeb;
+  border: 1px solid #f39c12;
+  border-left: 4px solid #f39c12;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+.key strong { color: #d68910; }
+
+/* Danger */
+.danger {
+  background: #fef2f2;
+  border: 1px solid #c0392b;
+  border-left: 4px solid #c0392b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+
+/* Tip */
+.tip {
+  background: #f0fdf4;
+  border: 1px solid #27ae60;
+  border-left: 4px solid #27ae60;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+
+/* Permission grid */
+.perm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+.perm-cell {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  background: var(--surface);
+}
+.perm-cell .perm-name { font-weight: 700; font-size: 1rem; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+.perm-cell .perm-num { color: var(--muted); font-size: 0.8rem; }
+
+/* Divider */
+hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+/* Nav bar */
+.nav {
+  position: sticky;
+  top: 0;
+  background: rgba(250,250,248,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+.nav a {
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.nav a:hover { background: var(--border); }
+.nav-5 { color: var(--ch5); border-color: rgba(192,57,43,0.3) !important; }
+.nav-6 { color: var(--ch6); border-color: rgba(41,128,185,0.3) !important; }
+.nav-7 { color: var(--ch7); border-color: rgba(39,174,96,0.3) !important; }
+.nav-8 { color: var(--ch8); border-color: rgba(142,68,173,0.3) !important; }
+.nav-title { color: var(--muted); font-size: 0.8rem; line-height: 2; margin-right: 4px; }
+
+/* Quick ref card */
+.ref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+.ref-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+.ref-item .ref-cmd { font-family: 'JetBrains Mono', monospace; color: #2980b9; font-weight: 600; font-size: 0.88rem; }
+.ref-item .ref-desc { color: var(--muted); margin-top: 3px; font-size: 0.82rem; }
+
+@media (max-width: 600px) {
+  .toc-grid { grid-template-columns: 1fr; }
+  .perm-grid { grid-template-columns: 1fr 1fr; }
+  .ref-grid { grid-template-columns: 1fr; }
+  .cover-title { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-title">$ Linux 期末考複習講義</div>
+  <div class="cover-sub">第五章 ～ 第八章｜考試重點整理</div>
+  <div class="cover-chips">
+    <span class="chip chip-5">第五章 權限與程序</span>
+    <span class="chip chip-6">第六章 磁碟與檔案系統</span>
+    <span class="chip chip-7">第七章 Shell 與變數</span>
+    <span class="chip chip-8">第八章 Script 與資料流</span>
+  </div>
+</div>
+
+<nav class="nav no-print">
+  <span class="nav-title">跳至：</span>
+  <a class="nav-5" href="#ch5">第五章</a>
+  <a class="nav-6" href="#ch6">第六章</a>
+  <a class="nav-7" href="#ch7">第七章</a>
+  <a class="nav-8" href="#ch8">第八章</a>
+  <a class="nav-title" href="#quickref" style="color:#6b6b6b">⚡ 速查表</a>
+</nav>
+
+<div class="main">
+
+<!-- ===================== TOC ===================== -->
+<div class="toc no-print">
+  <h2>目錄</h2>
+  <div class="toc-grid">
+    <a href="#ch5-perm"><span class="toc-dot" style="background:var(--ch5)"></span>5.1 傳統權限 rwx</a>
+    <a href="#ch5-special"><span class="toc-dot" style="background:var(--ch5)"></span>5.2 特殊權限 SUID/SGID/SBIT</a>
+    <a href="#ch5-process"><span class="toc-dot" style="background:var(--ch5)"></span>5.3 程序管理</a>
+    <a href="#ch5-job"><span class="toc-dot" style="background:var(--ch5)"></span>5.4 工作管理</a>
+    <a href="#ch6-disk"><span class="toc-dot" style="background:var(--ch6)"></span>6.1 磁碟分割</a>
+    <a href="#ch6-fs"><span class="toc-dot" style="background:var(--ch6)"></span>6.2 檔案系統</a>
+    <a href="#ch6-inode"><span class="toc-dot" style="background:var(--ch6)"></span>6.3 inode 與連結</a>
+    <a href="#ch6-mount"><span class="toc-dot" style="background:var(--ch6)"></span>6.4 掛載</a>
+    <a href="#ch7-var"><span class="toc-dot" style="background:var(--ch7)"></span>7.1 變數設定</a>
+    <a href="#ch7-env"><span class="toc-dot" style="background:var(--ch7)"></span>7.2 環境變數</a>
+    <a href="#ch7-shell"><span class="toc-dot" style="background:var(--ch7)"></span>7.3 Shell 設定檔</a>
+    <a href="#ch8-redirect"><span class="toc-dot" style="background:var(--ch8)"></span>8.1 資料流重導向</a>
+    <a href="#ch8-pipe"><span class="toc-dot" style="background:var(--ch8)"></span>8.2 管線命令</a>
+    <a href="#ch8-script"><span class="toc-dot" style="background:var(--ch8)"></span>8.3 Script 基礎</a>
+    <a href="#quickref"><span class="toc-dot" style="background:#f39c12"></span>⚡ 必背指令速查</a>
+  </div>
+</div>
+
+<!-- ===================== CH5 ===================== -->
+<div class="chapter ch5" id="ch5">
+  <div class="chapter-header ch5-header">
+    <span class="chapter-num ch5-num">第五章</span>
+    <span class="chapter-title">權限管理與程序</span>
+  </div>
+
+  <!-- 5.1 傳統權限 -->
+  <div class="section" id="ch5-perm">
+    <div class="section-title">5.1 傳統權限 rwx</div>
+    <div class="concept-box">
+      <p><strong>ls -l 輸出格式</strong>（期中考考過，期末很可能再考）</p>
+      <p><code>-rwsr-xr-x 1 root root 32 2月26 09:10 /usr/bin/passwd</code></p>
+      <table>
+        <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+        <tr><td>1</td><td>檔案類型 + 權限</td><td><code>-rwsr-xr-x</code></td></tr>
+        <tr><td>2</td><td>連結數</td><td><code>1</code></td></tr>
+        <tr><td>3</td><td>擁有者（owner）</td><td><code>root</code></td></tr>
+        <tr><td>4</td><td>擁有群組（group）</td><td><code>root</code></td></tr>
+        <tr><td>5</td><td>檔案大小</td><td><code>32</code></td></tr>
+        <tr><td>6</td><td>修改時間</td><td><code>2月26 09:10</code></td></tr>
+        <tr><td>7</td><td>檔名</td><td><code>/usr/bin/passwd</code></td></tr>
+      </table>
+    </div>
+    <div class="concept-box">
+      <p><strong>chmod 數字對應</strong></p>
+      <div class="perm-grid">
+        <div class="perm-cell"><div class="perm-name">r</div><div class="perm-num">= 4（讀）</div></div>
+        <div class="perm-cell"><div class="perm-name">w</div><div class="perm-num">= 2（寫）</div></div>
+        <div class="perm-cell"><div class="perm-name">x</div><div class="perm-num">= 1（執行）</div></div>
+        <div class="perm-cell"><div class="perm-name">rwx</div><div class="perm-num">= 7</div></div>
+        <div class="perm-cell"><div class="perm-name">r-x</div><div class="perm-num">= 5</div></div>
+        <div class="perm-cell"><div class="perm-name">r--</div><div class="perm-num">= 4</div></div>
+      </div>
+    </div>
+    <pre><span class="comment"># 設定擁有者rwx 群組r-x 其他r-x</span>
+<span class="cmd">chmod</span> <span class="num">755</span> /path/to/file
+
+<span class="comment"># 設定擁有者與群組</span>
+<span class="cmd">chown</span> Jack:Peter myGod</pre>
+  </div>
+
+  <!-- 5.2 特殊權限 -->
+  <div class="section" id="ch5-special">
+    <div class="section-title">5.2 特殊權限 SUID / SGID / SBIT ⭐最常考</div>
+
+    <table>
+      <tr><th>名稱</th><th>設在哪</th><th>效果</th><th>ls 顯示</th><th>數字</th></tr>
+      <tr>
+        <td><strong>SUID</strong></td>
+        <td>指令（檔案）</td>
+        <td>執行時暫時取得<strong>擁有者</strong>的權限</td>
+        <td>擁有者 x → <code>s</code></td>
+        <td><strong>4</strong>xxx</td>
+      </tr>
+      <tr>
+        <td><strong>SGID</strong></td>
+        <td>指令 or 目錄</td>
+        <td>在<strong>目錄</strong>下建立的新檔案，群組自動繼承目錄群組</td>
+        <td>群組 x → <code>s</code></td>
+        <td><strong>2</strong>xxx</td>
+      </tr>
+      <tr>
+        <td><strong>SBIT</strong></td>
+        <td>目錄</td>
+        <td>目錄內的檔案，使用者只能刪<strong>自己建立</strong>的</td>
+        <td>其他 x → <code>t</code></td>
+        <td><strong>1</strong>xxx</td>
+      </tr>
+    </table>
+
+    <div class="key">
+      <strong>📌 記憶口訣：</strong> SUID=4、SGID=2、SBIT=1，跟 rwx 的 4-2-1 一樣！<br>
+      <strong>範例：</strong> <code>chmod 6755</code> = SUID(4)+SGID(2), rwxr-xr-x
+    </div>
+
+    <pre><span class="comment"># 設定 SUID（4+755）</span>
+<span class="cmd">chmod</span> <span class="num">4755</span> /usr/local/bin/mycat2
+
+<span class="comment"># 設定 SUID + SGID（4+2+755 = 6755）</span>
+<span class="cmd">chmod</span> <span class="num">6755</span> /usr/bin/passwd
+
+<span class="comment"># 設定 SBIT（1+777 = 1777，如 /tmp）</span>
+<span class="cmd">chmod</span> <span class="num">1777</span> /tmp
+
+<span class="comment"># 確認 SBIT 是否存在（看 t 字元）</span>
+<span class="cmd">ls</span> <span class="flag">-ld</span> /tmp</pre>
+
+    <div class="danger">
+      ⚠️ <strong>重要：</strong> passwd 能修改 /etc/shadow 就是因為 passwd 有 SUID，執行時暫時取得 root 權限。這個例子考試很愛出！
+    </div>
+  </div>
+
+  <!-- 5.3 程序管理 -->
+  <div class="section" id="ch5-process">
+    <div class="section-title">5.3 程序管理 (Process)</div>
+    <div class="concept-box">
+      <p><strong>NI 值（Nice Value）</strong>：決定優先權，範圍 -20 到 19</p>
+      <p>NI 值<strong>越小</strong> → 優先權越高 → 越早執行</p>
+      <p>NI 值<strong>越大</strong> → 優先權越低 → 越晚執行</p>
+    </div>
+    <pre><span class="comment"># 查看程序（含 PID, PRI, NI, COMMAND）</span>
+<span class="cmd">ps</span> <span class="flag">-eo</span> pid,pri,ni,comm | head
+
+<span class="comment"># 找特定程序</span>
+<span class="cmd">ps</span> <span class="flag">aux</span> | <span class="cmd">grep</span> crond
+
+<span class="comment"># 修改執行中程序的 NI 值</span>
+<span class="cmd">renice</span> <span class="flag">-n</span> <span class="num">-15</span> [PID號碼]
+
+<span class="comment"># 以指定 NI 值啟動程式</span>
+<span class="cmd">nice</span> <span class="flag">-n</span> <span class="num">10</span> su student
+
+<span class="comment"># 即時監控（每2秒更新）</span>
+<span class="cmd">top</span> <span class="flag">-d</span> <span class="num">2</span>
+<span class="comment"># top 內按 P = 依 CPU 排序；按 M = 依記憶體排序</span></pre>
+  </div>
+
+  <!-- 5.4 工作管理 -->
+  <div class="section" id="ch5-job">
+    <div class="section-title">5.4 工作管理 (Job Control)</div>
+    <table>
+      <tr><th>操作</th><th>指令/按鍵</th><th>說明</th></tr>
+      <tr><td>丟到背景（暫停）</td><td><kbd>Ctrl + Z</kbd></td><td>程序暫停，放入背景</td></tr>
+      <tr><td>丟到背景（執行）</td><td><code>指令 &amp;</code></td><td>直接在背景執行</td></tr>
+      <tr><td>查看背景工作</td><td><code>jobs -l</code></td><td>顯示工作號碼與 PID</td></tr>
+      <tr><td>移到前景</td><td><code>fg %1</code></td><td>%1 = 工作號碼 1</td></tr>
+      <tr><td>在背景繼續執行</td><td><code>bg %1</code></td><td>讓暫停的工作在背景跑</td></tr>
+      <tr><td>中斷程序</td><td><kbd>Ctrl + C</kbd></td><td>強制終止</td></tr>
+      <tr><td>結束輸入（EOF）</td><td><kbd>Ctrl + D</kbd></td><td>不是中斷！是輸入結束</td></tr>
+    </table>
+    <div class="key">
+      <strong>📌 Ctrl+Z vs Ctrl+C vs Ctrl+D：</strong><br>
+      Z = 暫停放背景 ｜ C = 直接殺掉 ｜ D = 結束輸入（cat 用這個）
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CH6 ===================== -->
+<div class="chapter ch6" id="ch6">
+  <div class="chapter-header ch6-header">
+    <span class="chapter-num ch6-num">第六章</span>
+    <span class="chapter-title">磁碟分割與檔案系統</span>
+  </div>
+
+  <!-- 6.1 磁碟分割 -->
+  <div class="section" id="ch6-disk">
+    <div class="section-title">6.1 磁碟分割（MBR vs GPT）</div>
+    <table>
+      <tr><th></th><th>MBR</th><th>GPT</th></tr>
+      <tr><td>最大磁碟</td><td>2 TB</td><td>無限制（實際 9.4 ZB）</td></tr>
+      <tr><td>主分割數</td><td>最多 4 個</td><td>128 個（不分主/邏輯）</td></tr>
+      <tr><td>延伸分割</td><td>需要（突破 4 個限制）</td><td>不需要</td></tr>
+      <tr><td>何時使用</td><td>磁碟 ≤ 2TB</td><td>磁碟 > <strong>2TB</strong></td></tr>
+    </table>
+
+    <div class="concept-box">
+      <p><strong>MBR 裝置檔名規則</strong>（裝置為 /dev/sda 為例）</p>
+      <p>主分割：<code>/dev/sda1</code>, <code>/dev/sda2</code>, <code>/dev/sda3</code></p>
+      <p>延伸分割：<code>/dev/sda4</code>（最多一個）</p>
+      <p>邏輯分割：<code>/dev/sda5</code>, <code>/dev/sda6</code>, <code>/dev/sda7</code>… <strong>永遠從 5 開始</strong></p>
+    </div>
+
+    <pre><span class="comment"># 查看磁碟裝置</span>
+<span class="cmd">lsblk</span>
+<span class="cmd">lsblk</span> <span class="flag">-p</span>   <span class="comment"># 顯示完整路徑</span>
+
+<span class="comment"># 查看分割表類型（MBR/GPT）</span>
+<span class="cmd">parted</span> /dev/sda <span class="flag">print</span>
+
+<span class="comment"># 進入 fdisk 分割磁碟</span>
+<span class="cmd">fdisk</span> /dev/sda
+<span class="comment"># 按 p = 查看, n = 新增, w = 儲存, q = 離開</span></pre>
+  </div>
+
+  <!-- 6.2 檔案系統 -->
+  <div class="section" id="ch6-fs">
+    <div class="section-title">6.2 建立檔案系統 (mkfs)</div>
+    <table>
+      <tr><th>格式</th><th>指令</th><th>用途</th></tr>
+      <tr><td>XFS</td><td><code>mkfs.xfs /dev/sda4</code></td><td>Linux 主流</td></tr>
+      <tr><td>FAT</td><td><code>mkfs.vfat /dev/sda5</code></td><td>跨平台（Windows）</td></tr>
+      <tr><td>Swap</td><td><code>mkswap /dev/sda6</code></td><td>記憶體置換空間</td></tr>
+    </table>
+    <pre><span class="comment"># 啟用 swap</span>
+<span class="cmd">swapon</span> /dev/sda6
+<span class="cmd">swapon</span> <span class="flag">-s</span>   <span class="comment"># 查看目前 swap 狀態</span>
+
+<span class="comment"># 查詢裝置的 UUID 與檔案系統類型</span>
+<span class="cmd">blkid</span></pre>
+  </div>
+
+  <!-- 6.3 inode -->
+  <div class="section" id="ch6-inode">
+    <div class="section-title">6.3 inode、Block 與連結</div>
+    <div class="concept-box">
+      <p><strong>EXT2 檔案系統三大區塊</strong></p>
+      <p>① <strong>superblock</strong>：整個檔案系統的資訊（block/inode 總數等）</p>
+      <p>② <strong>inode table</strong>：儲存檔案的<strong>屬性、權限、時間</strong>等 metadata</p>
+      <p>③ <strong>block area</strong>：儲存<strong>實際檔案內容</strong>（程式碼、資料）</p>
+    </div>
+
+    <table>
+      <tr><th></th><th>實體連結 (Hard Link)</th><th>符號連結 (Symbolic Link)</th></tr>
+      <tr><td>建立指令</td><td><code>ln 來源 目標</code></td><td><code>ln -s 來源 目標</code></td></tr>
+      <tr><td>inode</td><td>⭐ <strong>相同</strong> inode</td><td>不同 inode</td></tr>
+      <tr><td>來源刪除後</td><td>連結仍可使用</td><td>連結<strong>失效</strong>（紅色顯示）</td></tr>
+      <tr><td>跨磁碟</td><td>❌ 不可</td><td>✅ 可以</td></tr>
+      <tr><td>類比</td><td>兩個名字指同一資料</td><td>捷徑/快捷方式</td></tr>
+    </table>
+  </div>
+
+  <!-- 6.4 掛載 -->
+  <div class="section" id="ch6-mount">
+    <div class="section-title">6.4 掛載與卸載</div>
+    <div class="key"><strong>📌 掛載點是目錄</strong>，不是檔案！</div>
+    <pre><span class="comment"># 建立掛載目錄並掛載</span>
+<span class="cmd">mkdir</span> /srv/linux /srv/win
+<span class="cmd">mount</span> /dev/sda4 /srv/linux
+<span class="cmd">mount</span> /dev/sda5 /srv/win
+
+<span class="comment"># 查看目前掛載狀態（-T 顯示檔案系統類型）</span>
+<span class="cmd">df</span> <span class="flag">-T</span>
+
+<span class="comment"># 卸載</span>
+<span class="cmd">umount</span> /dev/sda4
+<span class="cmd">swapoff</span> /dev/sda6</pre>
+  </div>
+</div>
+
+<!-- ===================== CH7 ===================== -->
+<div class="chapter ch7" id="ch7">
+  <div class="chapter-header ch7-header">
+    <span class="chapter-num ch7-num">第七章</span>
+    <span class="chapter-title">Shell 變數與環境設定</span>
+  </div>
+
+  <!-- 7.1 變數設定 -->
+  <div class="section" id="ch7-var">
+    <div class="section-title">7.1 變數設定語法 ⭐必考</div>
+
+    <table>
+      <tr><th>語法</th><th>用途</th><th>範例</th></tr>
+      <tr><td><code>${ 變數 }</code></td><td>引用<strong>變數</strong>內容</td><td><code>echo ${PATH}</code></td></tr>
+      <tr><td><code>$( 指令 )</code></td><td>執行<strong>指令</strong>並取得輸出</td><td><code>kver=$(uname -r)</code></td></tr>
+      <tr><td><code>$(( 數學 ))</code></td><td><strong>數學計算</strong></td><td><code>result=$((3+5))</code></td></tr>
+      <tr><td><code>"雙引號"</code></td><td>保留 $ 功能（變數會展開）</td><td><code>"I am $myname"</code></td></tr>
+      <tr><td><code>'單引號'</code></td><td>純文字（$ 不展開）</td><td><code>'$myname'</code> → 顯示 $myname</td></tr>
+      <tr><td>反引號 ` `</td><td>同 $( )，舊式寫法</td><td><code>`uname -r`</code></td></tr>
+    </table>
+
+    <pre><span class="comment"># 設定含空格的變數（必須加引號）</span>
+<span class="var">myname</span>=<span class="str">"peter pan"</span>
+<span class="cmd">echo</span> <span class="var">$myname</span>
+
+<span class="comment"># 動態取得核心版本</span>
+<span class="var">kver</span>=<span class="str">"my kernel version is $(uname -r)"</span>
+
+<span class="comment"># 數學計算</span>
+<span class="var">result</span>=$((100 + 200))
+
+<span class="comment"># 錯誤示範：變數名不能以數字開頭</span>
+<span class="comment"># 2myname="test"  ← 這樣會報錯！</span></pre>
+
+    <div class="danger">
+      ⚠️ 變數名稱<strong>不能以數字開頭</strong>，且 = 號兩側不能有空格！
+    </div>
+  </div>
+
+  <!-- 7.2 環境變數 -->
+  <div class="section" id="ch7-env">
+    <div class="section-title">7.2 區域變數 vs 全域變數</div>
+    <div class="concept-box">
+      <p><strong>區域變數</strong>：只有目前 shell 可以使用，子程序看不到</p>
+      <p><strong>全域變數（環境變數）</strong>：子程序也能繼承使用，用 <code>export</code> 設定</p>
+    </div>
+    <pre><span class="comment"># 設定區域變數</span>
+<span class="var">mypp</span>=<span class="str">"hello"</span>
+
+<span class="comment"># 轉為全域變數（子程序也能用）</span>
+<span class="cmd">export</span> <span class="var">mypp</span>
+
+<span class="comment"># 查看全域變數</span>
+<span class="cmd">env</span>
+<span class="cmd">export</span>
+
+<span class="comment"># 查看所有變數（含區域）</span>
+<span class="cmd">set</span>
+
+<span class="comment"># 常用環境變數</span>
+<span class="cmd">echo</span> <span class="var">$PATH</span>       <span class="comment"># 執行路徑</span>
+<span class="cmd">echo</span> <span class="var">$HISTSIZE</span>   <span class="comment"># 歷史命令筆數</span>
+<span class="cmd">echo</span> <span class="var">$LANG</span>       <span class="comment"># 語系</span>
+<span class="cmd">echo</span> <span class="var">$HOME</span>       <span class="comment"># 家目錄</span></pre>
+  </div>
+
+  <!-- 7.3 Shell 設定檔 -->
+  <div class="section" id="ch7-shell">
+    <div class="section-title">7.3 Shell 設定檔 ⭐常考</div>
+    <table>
+      <tr><th>情境</th><th>讀取的設定檔</th></tr>
+      <tr><td><strong>login shell</strong>（用帳密登入）</td><td><code>~/.bash_profile</code> 或 <code>~/.profile</code></td></tr>
+      <tr><td><strong>non-login shell</strong>（在 bash 內再開 bash）</td><td><code>~/.bashrc</code></td></tr>
+      <tr><td>所有使用者的系統設定</td><td><code>/etc/profile</code></td></tr>
+      <tr><td>登出時執行</td><td><code>~/.bash_logout</code></td></tr>
+    </table>
+    <div class="key">
+      <strong>📌 讓設定立即生效（不登出）：</strong><br>
+      <code>source ~/.bashrc</code> 或 <code>. ~/.bashrc</code>
+    </div>
+
+    <div class="concept-box">
+      <p><strong>.bashrc 常見設定內容（考試愛考！）</strong></p>
+    </div>
+    <pre><span class="comment"># 設定 history 筆數</span>
+<span class="var">HISTSIZE</span>=10000
+<span class="cmd">export</span> <span class="var">HISTSIZE</span>=5000   <span class="comment"># 設為全域</span>
+
+<span class="comment"># 命令別名（alias）</span>
+<span class="cmd">alias</span> cp=<span class="str">'cp -i'</span>    <span class="comment"># cp 自動詢問是否覆蓋</span>
+<span class="cmd">alias</span> rm=<span class="str">'rm -i'</span>
+<span class="cmd">alias</span> mv=<span class="str">'mv -i'</span>
+
+<span class="comment"># 設定語系（全域）</span>
+<span class="cmd">export</span> <span class="var">LANG</span>=zh_TW.utf8
+
+<span class="comment"># 擴充 PATH</span>
+<span class="var">PATH</span>=<span class="str">"${PATH}:~/cmd"</span>
+<span class="cmd">export</span> <span class="var">PATH</span>
+
+<span class="comment"># 提示字元（PS1）加入時間與指令次數</span>
+<span class="var">PS1</span>=<span class="str">'[\u@\h \t \# \W]\$ '</span></pre>
+  </div>
+</div>
+
+<!-- ===================== CH8 ===================== -->
+<div class="chapter ch8" id="ch8">
+  <div class="chapter-header ch8-header">
+    <span class="chapter-num ch8-num">第八章</span>
+    <span class="chapter-title">Script、資料流與管線</span>
+  </div>
+
+  <!-- 8.1 資料流 -->
+  <div class="section" id="ch8-redirect">
+    <div class="section-title">8.1 資料流重導向</div>
+    <table>
+      <tr><th>符號</th><th>功能</th><th>範例</th></tr>
+      <tr><td><code>&gt;</code></td><td>stdout 輸出到檔案（覆蓋）</td><td><code>ls &gt; out.txt</code></td></tr>
+      <tr><td><code>&gt;&gt;</code></td><td>stdout 輸出到檔案（<strong>累加</strong>）</td><td><code>ls &gt;&gt; out.txt</code></td></tr>
+      <tr><td><code>2&gt;</code></td><td>stderr 輸出到檔案</td><td><code>find 2&gt; /dev/null</code></td></tr>
+      <tr><td><code>2&gt;&gt;</code></td><td>stderr 累加到檔案</td><td></td></tr>
+      <tr><td><code>&amp;&gt;</code></td><td>stdout + stderr 都導向</td><td><code>cmd &amp;&gt; /dev/null</code></td></tr>
+      <tr><td><code>&lt;</code></td><td>stdin 從檔案讀入</td><td><code>cat &lt; /etc/hosts</code></td></tr>
+      <tr><td><code>/dev/null</code></td><td>垃圾桶（丟棄輸出）</td><td><code>2&gt; /dev/null</code></td></tr>
+    </table>
+    <pre><span class="comment"># 找 passwd 相關檔案：丟棄錯誤訊息，正確輸出存檔</span>
+<span class="cmd">find</span> /etc <span class="flag">-name</span> <span class="str">'*passwd*'</span> 2&gt; /dev/null &gt; ~/find_passwd.txt
+
+<span class="comment"># 累加 shadow 相關結果</span>
+<span class="cmd">find</span> /etc <span class="flag">-name</span> <span class="str">'*shadow*'</span> 2&gt; /dev/null &gt;&gt; ~/find_passwd.txt</pre>
+  </div>
+
+  <!-- 8.2 管線 -->
+  <div class="section" id="ch8-pipe">
+    <div class="section-title">8.2 管線命令 (pipe) 與邏輯運算子</div>
+
+    <table>
+      <tr><th>符號</th><th>說明</th></tr>
+      <tr><td><code>cmd1 | cmd2</code></td><td>cmd1 的 stdout 傳給 cmd2 當 stdin</td></tr>
+      <tr><td><code>cmd1 &amp;&amp; cmd2</code></td><td>cmd1 <strong>成功</strong>（回傳0）才執行 cmd2</td></tr>
+      <tr><td><code>cmd1 || cmd2</code></td><td>cmd1 <strong>失敗</strong>才執行 cmd2</td></tr>
+      <tr><td><code>echo $?</code></td><td>查看上一個指令的<strong>回傳值</strong>（0=成功）</td></tr>
+    </table>
+
+    <pre><span class="comment"># 常用管線組合</span>
+
+<span class="comment"># 統計 /etc 下 .conf 檔案數</span>
+<span class="cmd">find</span> /etc | <span class="cmd">grep</span> <span class="str">'\.conf'</span> | <span class="cmd">wc</span> <span class="flag">-l</span>
+
+<span class="comment"># 查 /etc/passwd 第1和第7欄（帳號+shell）</span>
+<span class="cmd">cat</span> /etc/passwd | <span class="cmd">cut</span> <span class="flag">-d</span> <span class="str">':'</span> <span class="flag">-f</span> 1,7
+
+<span class="comment"># 統計每個 shell 有幾個帳號</span>
+<span class="cmd">cat</span> /etc/passwd | <span class="cmd">cut</span> <span class="flag">-d</span> <span class="str">':'</span> <span class="flag">-f</span> 7 | <span class="cmd">sort</span> | <span class="cmd">uniq</span> <span class="flag">-c</span>
+
+<span class="comment"># 同時顯示螢幕又存檔（tee）</span>
+<span class="cmd">ip</span> addr show | <span class="cmd">grep</span> <span class="str">'inet'</span> | <span class="cmd">awk</span> <span class="str">'{print $2}'</span> | <span class="cmd">tee</span> /dev/shm/myip.txt
+
+<span class="comment"># 條件判斷範例</span>
+<span class="comment"># 不存在 /dev/shm/check 才建立</span>
+<span class="cmd">ls</span> <span class="flag">-ld</span> /dev/shm/check || <span class="cmd">mkdir</span> /dev/shm/check</pre>
+  </div>
+
+  <!-- 8.3 Script -->
+  <div class="section" id="ch8-script">
+    <div class="section-title">8.3 Script 基礎與 test 判斷</div>
+
+    <pre><span class="comment">#!/bin/bash
+# test 判斷（常用參數）</span>
+<span class="cmd">test</span> <span class="flag">-e</span> /etc/       <span class="comment"># 是否存在</span>
+<span class="cmd">test</span> <span class="flag">-f</span> /etc/hosts  <span class="comment"># 是否為一般檔案</span>
+<span class="cmd">test</span> <span class="flag">-d</span> /etc/       <span class="comment"># 是否為目錄</span>
+<span class="cmd">test</span> <span class="flag">-u</span> /usr/bin/passwd  <span class="comment"># 是否有 SUID</span>
+<span class="cmd">echo</span> <span class="var">$?</span>             <span class="comment"># 0=true, 1=false</span>
+
+<span class="comment"># 用 [] 代替 test（注意空格！）</span>
+[ <span class="flag">-e</span> /etc/ ]; <span class="cmd">echo</span> <span class="var">${?}</span>
+[ <span class="var">${HOSTNAME}</span> == <span class="str">"mylocalhost"</span> ]; <span class="cmd">echo</span> <span class="var">$?</span>
+
+<span class="comment"># 簡單 if 判斷（用 && ||）</span>
+<span class="cmd">test</span> <span class="flag">-e</span> <span class="var">${1}</span> && <span class="cmd">echo</span> <span class="str">"exist"</span> || <span class="cmd">echo</span> <span class="str">"non-exist"</span></pre>
+
+    <div class="concept-box">
+      <p><strong>() 的用途</strong>：將多個指令合併，統一重導向</p>
+      <p><code>date; uptime; uname -r &gt; myfile.txt</code> → 只有 uname -r 的輸出進 myfile</p>
+      <p><code>(date; uptime; uname -r) &gt; myfile.txt</code> → 三個指令都進 myfile</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== QUICK REF ===================== -->
+<div id="quickref" style="margin-top:20px;">
+  <div style="background:linear-gradient(135deg,#f39c12,#e67e22);color:white;padding:20px 24px;border-radius:12px;margin-bottom:20px;">
+    <div style="font-size:1.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;">⚡ 必背指令速查表</div>
+    <div style="font-size:0.85rem;opacity:0.85;margin-top:4px;">期末考最可能出現的手寫指令</div>
+  </div>
+
+  <div class="ref-grid">
+    <div class="ref-item">
+      <div class="ref-cmd">chmod 4755 /path</div>
+      <div class="ref-desc">設 SUID（rwxr-xr-x）</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">chmod 6755 /path</div>
+      <div class="ref-desc">設 SUID+SGID</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">chmod 1777 /tmp</div>
+      <div class="ref-desc">設 SBIT（/tmp 的權限）</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">chown Jack:Peter myGod</div>
+      <div class="ref-desc">設擁有者與群組</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">mkfs.xfs /dev/sda4</div>
+      <div class="ref-desc">格式化為 XFS</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">mkfs.vfat /dev/sda5</div>
+      <div class="ref-desc">格式化為 FAT</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">mkswap /dev/sda6</div>
+      <div class="ref-desc">建立 swap 空間</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">mount /dev/sda4 /srv/linux</div>
+      <div class="ref-desc">掛載裝置</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">fg %1 / bg %1</div>
+      <div class="ref-desc">前景 / 背景 執行工作</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">renice -n -15 [PID]</div>
+      <div class="ref-desc">修改程序 NI 值</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">myname="peter pan"</div>
+      <div class="ref-desc">設定含空格的變數</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">kver=$(uname -r)</div>
+      <div class="ref-desc">子指令賦值</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">export LANG=zh_TW.utf8</div>
+      <div class="ref-desc">設語系為全域變數</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">export HISTSIZE=5000</div>
+      <div class="ref-desc">設 history 筆數</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">alias cp='cp -i'</div>
+      <div class="ref-desc">設命令別名</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">source ~/.bashrc</div>
+      <div class="ref-desc">讓設定立即生效</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">2> /dev/null</div>
+      <div class="ref-desc">丟棄錯誤訊息</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">find /etc | grep '\.conf' | wc -l</div>
+      <div class="ref-desc">統計 .conf 檔案數</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">test -e /etc; echo $?</div>
+      <div class="ref-desc">判斷是否存在</div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-cmd">ln -s 來源 目標</div>
+      <div class="ref-desc">建立符號連結</div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;background:#fff3cd;border:1px solid #f39c12;border-radius:10px;padding:16px 20px;font-size:0.88rem;">
+    <strong>🎯 選擇題重點提醒：</strong><br>
+    ① NI 值 <strong>-20 最小 = 優先權最高</strong>（越早執行）<br>
+    ② <strong>SUID=4, SGID=2, SBIT=1</strong>（跟 rwx 同一套邏輯）<br>
+    ③ 實體連結 = <strong>相同 inode</strong>；符號連結 = 不同 inode<br>
+    ④ login shell 讀 <strong>~/.bash_profile</strong>；non-login 讀 <strong>~/.bashrc</strong><br>
+    ⑤ <strong>&amp;&amp;</strong> 前者成功才執行；<strong>||</strong> 前者失敗才執行<br>
+    ⑥ GPT 分割表用於 <strong>2TB 以上</strong>的磁碟<br>
+    ⑦ Ctrl+Z=暫停放背景、Ctrl+C=中斷、Ctrl+D=EOF（結束輸入）
+  </div>
+</div>
+
+</div><!-- end main -->
+</body>
+</html>
